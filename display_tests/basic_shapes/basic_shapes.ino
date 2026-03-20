@@ -8,9 +8,12 @@
 #define EPD_RST   9
 #define EPD_BUSY  8
 
+const int PLUSbutton = 16; 
+
 GxEPD2_BW<GxEPD2_it60_1448x1072, GxEPD2_it60_1448x1072::HEIGHT / 8> display(GxEPD2_it60_1448x1072(/*CS=*/10, /*DC=*/-1, /*RST=*/9, /*BUSY=*/8));
 
 void setup() {
+
   Serial.begin(115200);
   SPI.begin(12, 13, 11, 10); // SCK, MISO, MOSI, CS
 
@@ -28,12 +31,18 @@ void setup() {
     display.fillScreen(GxEPD_WHITE);
     display.setCursor(100, 100);
     display.print("Hello World!");
-    display.drawXBitmap (150, 150, kittyDATA, 480, 480, GxEPD_BLACK);
+    display.drawBitmap (150, 150, kittyDATA, 480, 480, GxEPD_BLACK);
   } while (display.nextPage());
 
   
 
   Serial.println("Done!");
+  pinMode(PLUSbutton, INPUT_PULLUP);
+
 }
 
-void loop() {}
+void loop() {
+  if (digitalRead(PLUSbutton)  == LOW) {
+    Serial.println("whatt");
+  }
+}
