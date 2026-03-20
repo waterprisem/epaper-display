@@ -9,6 +9,8 @@
 #define EPD_BUSY  8
 
 const int PLUSbutton = 16; 
+int lastPLUSbuttonState = 0;
+
 
 GxEPD2_BW<GxEPD2_it60_1448x1072, GxEPD2_it60_1448x1072::HEIGHT / 8> display(GxEPD2_it60_1448x1072(/*CS=*/10, /*DC=*/-1, /*RST=*/9, /*BUSY=*/8));
 
@@ -42,7 +44,11 @@ void setup() {
 }
 
 void loop() {
-  if (digitalRead(PLUSbutton)  == LOW) {
+  if (digitalRead(PLUSbutton)  == LOW && lastPLUSbuttonState==0) {
     Serial.println("whatt");
+    lastPLUSbuttonState = 1;
+  }
+  if(digitalRead(PLUSbutton)  == HIGH){
+    lastPLUSbuttonState = 0;
   }
 }
