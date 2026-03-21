@@ -46,12 +46,28 @@ void setup() {
 }
 
 void loop() {
+  if (Serial.available() > 0) {
+    String incomingString = Serial.readStringUntil('\n');
+    display.setPartialWindow(700, 700, 500, 500);
+
+    display.firstPage();
+    do {
+      display.fillScreen(GxEPD_WHITE);
+      display.setFont(&FreeMono18pt7b);
+      display.setCursor(750, 750);
+      display.print(incomingString);
+    } while (display.nextPage());
+    
+  }
+
+
+
   if (digitalRead(PLUSbutton)  == LOW && lastPLUSbuttonState==0) {
     Serial.println("whatt");
     lastPLUSbuttonState = 1;
     counter +=1;
 
-    display.setPartialWindow(600, 600, 700, 700);
+    display.setPartialWindow(600, 600, 100, 100);
 
     display.firstPage();
     do {
