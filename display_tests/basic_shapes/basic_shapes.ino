@@ -1,5 +1,5 @@
 #include <GxEPD2_BW.h>
-//#include <Fonts/FreeMonoBold9pt7b.h>
+#include <Fonts/FreeMono18pt7b.h>
 #include <Fonts/Picopixel.h>
 #include <Fonts/FreeMonoBoldOblique24pt7b.h>
 #include "images.h"
@@ -10,6 +10,8 @@
 
 const int PLUSbutton = 16; 
 int lastPLUSbuttonState = 0;
+
+int counter = 0;
 
 
 GxEPD2_BW<GxEPD2_it60_1448x1072, GxEPD2_it60_1448x1072::HEIGHT / 8> display(GxEPD2_it60_1448x1072(/*CS=*/10, /*DC=*/-1, /*RST=*/9, /*BUSY=*/8));
@@ -47,7 +49,20 @@ void loop() {
   if (digitalRead(PLUSbutton)  == LOW && lastPLUSbuttonState==0) {
     Serial.println("whatt");
     lastPLUSbuttonState = 1;
+    counter +=1;
+
+    display.setPartialWindow(600, 600, 700, 700);
+
+    display.firstPage();
+    do {
+      display.fillScreen(GxEPD_WHITE);
+      display.setFont(&FreeMono18pt7b);
+      display.setCursor(650, 650);
+      display.print(counter);
+    } while (display.nextPage());
+
   }
+
   if(digitalRead(PLUSbutton)  == HIGH){
     lastPLUSbuttonState = 0;
   }
