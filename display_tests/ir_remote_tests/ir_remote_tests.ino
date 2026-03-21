@@ -1,23 +1,8 @@
-#include <GxEPD2_BW.h>
-#include <Fonts/FreeMono18pt7b.h>
-#include <Fonts/Picopixel.h>
-#include <Fonts/FreeMonoBoldOblique24pt7b.h>
-#include "images.h"
 #include <IRremote.hpp>
-
-
-#define EPD_CS    10
-#define EPD_RST   9
-#define EPD_BUSY  8
-
-const int PLUSbutton = 16; 
-int lastPLUSbuttonState = 0;
-
-int counter = 0;
-
 
 int receiver = 15; // Signal Pin of IR receiver to Arduino Digital Pin 13
 
+/*-----( Function )-----*/
 void translateIR() // takes action based on IR code received
 {
   switch(IrReceiver.decodedIRData.command)
@@ -52,65 +37,23 @@ void translateIR() // takes action based on IR code received
   delay(500); // Do not get immediate repeat
 }
 
-GxEPD2_BW<GxEPD2_it60_1448x1072, GxEPD2_it60_1448x1072::HEIGHT / 8> display(GxEPD2_it60_1448x1072(/*CS=*/10, /*DC=*/-1, /*RST=*/9, /*BUSY=*/8));
-
-void setup() {
-
+void setup()
+{
   Serial.begin(115200);
-  SPI.begin(12, 13, 11, 10); // SCK, MISO, MOSI, CS
-
-  delay(100); // give the IT8951 time to power up
-
-  display.init(115200, true, 50, false, SPI, SPISettings(4000000, MSBFIRST, SPI_MODE0));
-
-  display.setRotation(90);
-  display.setFont(&FreeMonoBoldOblique24pt7b);
-  display.setTextColor(GxEPD_BLACK);
-
-  display.setFullWindow();
-  display.firstPage();
-  do {
-    display.fillScreen(GxEPD_WHITE);
-    display.setCursor(100, 100);
-    display.print("Hello World!");
-    display.drawBitmap (150, 150, kittyDATA, 480, 480, GxEPD_BLACK);
-  } while (display.nextPage());
-
+  Serial.println("IR Receiver Button Decode"); 
   
-
-  Serial.println("Done!");
-  pinMode(PLUSbutton, INPUT_PULLUP);
-
   IrReceiver.begin(receiver, DISABLE_LED_FEEDBACK); // Start the receiver
-
-
+  
+  Serial.print("Ready to receive IR signals on pin ");
+  Serial.println(receiver);
 }
 
-void loop() {
-  if (digitalRead(PLUSbutton)  == LOW && lastPLUSbuttonState==0) {
-    Serial.println("whatt");
-    lastPLUSbuttonState = 1;
-    counter +=1;
-
-    display.setPartialWindow(600, 600, 700, 700);
-
-    display.firstPage();
-    do {
-      display.fillScreen(GxEPD_WHITE);
-      display.setFont(&FreeMono18pt7b);
-      display.setCursor(650, 650);
-      display.print(counter);
-    } while (display.nextPage());
-
-  }
-
-  if(digitalRead(PLUSbutton)  == HIGH){
-    lastPLUSbuttonState = 0;
-  }
+void loop()
+{
   if (IrReceiver.decode()) // have we received an IR signal?
   {
     translateIR(); 
     //IrReceiver.printIRResultShort(&Serial);  // prints everything it received, useful for mapping to other remotes :)
     IrReceiver.resume(); // Enable receiving of the next value
-  }
+  }  
 }
