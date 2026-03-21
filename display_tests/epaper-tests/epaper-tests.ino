@@ -55,9 +55,7 @@ void setup() {
     display.fillScreen(GxEPD_WHITE);
     display.setCursor(100, 100);
     display.print("Hello World!");
-    display.drawBitmap (150, 150, kittyDATA, 480, 480, GxEPD_BLACK);
   } while (display.nextPage());
-
 
   Serial.println("Done!");
 
@@ -74,7 +72,7 @@ void setup() {
 
   // Configure time using configTime()
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer1, ntpServer2);
-
+  drawHOME();
 
 }
 
@@ -109,40 +107,56 @@ void loop() {
 //functions
 void drawHOME(){
   Serial.println("HOME Page");
-  display.setPartialWindow(600, 600, 700, 700);
 
+
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    Serial.println("Failed to obtain time");
+    return;
+  }
+  // Print time in a readable format
+  Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+  delay(1000);
+
+  display.setPartialWindow(100, 100, 1248, 900);
   display.firstPage();
   do {
     display.fillScreen(GxEPD_WHITE);
-    display.setFont(&FreeMono18pt7b);
-    display.setCursor(650, 650);
-    display.print("HOME Page");
+    display.setFont(&FreeMonoBoldOblique24pt7b);
+    display.setTextColor(GxEPD_BLACK);
+    display.setCursor(150, 150);
+    display.print("HOME PAGE");
+
+    display.setCursor(500, 400);
+    display.print(&timeinfo, "%B %d %Y");
+    
+    display.drawBitmap (150, 500, bunny2DATA, 480, 480, GxEPD_BLACK);
+    display.drawBitmap (450, 500, bunny3DATA, 480, 480, GxEPD_BLACK);
+    display.drawBitmap (750, 500, bunny1DATA, 480, 480, GxEPD_BLACK);
   } while (display.nextPage());
-} //Date and image
+
+} //Date and images
 
 void drawTODO(){
   Serial.println("TODO Page");
-  display.setPartialWindow(600, 600, 700, 700);
-
+  display.setPartialWindow(100, 100, 1248, 900);
   display.firstPage();
   do {
     display.fillScreen(GxEPD_WHITE);
-    display.setFont(&FreeMono18pt7b);
-    display.setCursor(650, 650);
-    display.print("TODO Page");
+    display.setCursor(150, 150);
+    display.print("TODO PAGE");
   } while (display.nextPage());
 
 }
 void drawSTATS(){
   Serial.println("STATS Page");
-  display.setPartialWindow(600, 600, 700, 700);
-
+  display.setPartialWindow(100, 100, 1248, 900);
   display.firstPage();
   do {
     display.fillScreen(GxEPD_WHITE);
-    display.setFont(&FreeMono18pt7b);
-    display.setCursor(650, 650);
-    display.print("STATS Page");
+    display.setCursor(150, 150);
+    display.print("STATS PAGE");
+    display.drawBitmap (900, 600, kittyDATA, 480, 480, GxEPD_BLACK);
   } while (display.nextPage());
   
 }
