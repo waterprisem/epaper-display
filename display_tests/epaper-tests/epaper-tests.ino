@@ -3,13 +3,23 @@
 #include <Fonts/Picopixel.h>
 #include <Fonts/FreeMonoBoldOblique24pt7b.h>
 #include "images.h"
+#include "secrets.h"
 #include <IRremote.hpp>
-
+#include <WiFi.h>
+#include <time.h>
 
 #define EPD_CS    10
 #define EPD_RST   9
 #define EPD_BUSY  8
 
+const char* ssid = WIFI_SSID;
+const char* password = WIFI_PASSWORD;
+
+const char* ntpServer1 = "pool.ntp.org"; // Primary NTP server
+const char* ntpServer2 = "time.nist.gov"; // Secondary NTP server
+
+const long gmtOffset_sec = -18000;  // Eastern Time (UTC-5)
+const int daylightOffset_sec = 3600; // 1 hour daylight saving
 
 int receiver = 15; // Signal Pin of IR receiver to Arduino Digital Pin 13
 
@@ -54,9 +64,31 @@ void setup() {
   IrReceiver.begin(receiver, DISABLE_LED_FEEDBACK); // Start the receiver
 
 
+  //wifi connection
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nWiFi connected.");
+
+  // Configure time using configTime()
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer1, ntpServer2);
+
+
 }
 
 void loop() {
+  //update clock info
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    Serial.println("Failed to obtain time");
+    return;
+  }
+  // Print time in a readable format
+  Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+  delay(1000);
+
   //read IR REMOTE
   if (IrReceiver.decode()) // have we received an IR signal?
   {
