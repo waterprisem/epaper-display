@@ -1,5 +1,5 @@
 #include <GxEPD2_BW.h>
-#include <Fonts/FreeMono18pt7b.h>
+#include <Fonts/FreeMonoBold18pt7b.h>
 #include <Fonts/Picopixel.h>
 #include <Fonts/FreeMonoBoldOblique24pt7b.h>
 #include "images.h"
@@ -7,10 +7,15 @@
 #include <IRremote.hpp>
 #include <WiFi.h>
 #include <time.h>
+#include <HTTPClient.h>
+#include <ArduinoJson.h>
 
 #define EPD_CS    10
 #define EPD_RST   9
 #define EPD_BUSY  8
+
+String fact;
+
 
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
@@ -23,13 +28,14 @@ const int daylightOffset_sec = 3600; // 1 hour daylight saving
 
 int receiver = 15; // Signal Pin of IR receiver to Arduino Digital Pin 13
 
-enum Page { HOME, TODO, STATS };
+enum Page { HOME, TODO, RANDOM };
 Page currentPage = HOME;
 Page lastPage;
 
 void drawHOME(); //Date and image
 void drawTODO();
-void drawSTATS();
+void drawRANDOM();
+void updateRANDOM();
 
 
 void translateIR();
@@ -98,7 +104,7 @@ void loop() {
     switch(currentPage) {
       case HOME: drawHOME(); break;
       case TODO: drawTODO(); break;
-      case STATS: drawSTATS(); break;
+      case RANDOM: drawRANDOM(); break;
     }
     lastPage = currentPage;
   }
@@ -148,18 +154,68 @@ void drawTODO(){
   } while (display.nextPage());
 
 }
-void drawSTATS(){
-  Serial.println("STATS Page");
+void drawRANDOM(){
+  updateRANDOM();
+  Serial.println("RANDOM Page");
   display.setPartialWindow(100, 100, 1248, 900);
   display.firstPage();
+
   do {
     display.fillScreen(GxEPD_WHITE);
     display.setCursor(150, 150);
-    display.print("STATS PAGE");
+    display.setFont(&FreeMonoBoldOblique24pt7b);
+    display.print("RANDOM PAGE");
     display.drawBitmap (900, 600, kittyDATA, 480, 480, GxEPD_BLACK);
+    display.setFont(&FreeMonoBold18pt7b);
+    display.setCursor(200, 400);
+    display.print("Fun Fact:");
+    printWrapped(fact, 250, 450, 1000, 50);
   } while (display.nextPage());
   
 }
+
+void updateRANDOM(){
+  HTTPClient http;
+  http.begin("https://uselessfacts.jsph.pl/api/v2/facts/random");
+  int httpCode = http.GET();
+  String payload = http.getString();
+  http.end();
+  
+  DynamicJsonDocument doc(1024);
+  deserializeJson(doc, payload);
+  fact = doc["text"].as<String>();
+  Serial.println(fact);
+}
+
+void printWrapped(String text, int x, int y, int maxWidth, int lineHeight) {
+  String line = "";
+  String word = "";
+  
+  for (int i = 0; i <= text.length(); i++) {
+    char c = text[i];
+    if (c == ' ' || c == '\0') {
+      // test if adding this word exceeds width
+      int16_t x1, y1;
+      uint16_t w, h;
+      display.getTextBounds(line + word, x, y, &x1, &y1, &w, &h);
+      if (w > maxWidth) {
+        display.setCursor(x, y);
+        display.print(line);
+        y += lineHeight;
+        line = word + " ";
+      } else {
+        line += word + " ";
+      }
+      word = "";
+    } else {
+      word += c;
+    }
+  }
+  // print remaining text
+  display.setCursor(x, y);
+  display.print(line);
+}
+
 
 
 void translateIR() // takes action based on IR code received
@@ -169,14 +225,20 @@ void translateIR() // takes action based on IR code received
   case 0x45: Serial.println("power"); break;
   case 0x46: Serial.println("mode"); break;
   case 0x47: Serial.println("mute"); break;
-  case 0x44: Serial.println("pause"); break;
+  case 0x44: Serial.println("pause"); 
+    if (currentPage ==RANDOM){
+      drawRANDOM();
+    }
+  
+  
+    break;
   case 0x40: Serial.println("back");
     if(currentPage > HOME) {  // HOME is the FIRST PAGE
       currentPage = (Page)(currentPage - 1);
     }
     break;
   case 0x43: Serial.println("forward");
-    if(currentPage < STATS) {  // STATS is the LAST PAGE
+    if(currentPage < RANDOM) {  // RANDOM is the LAST PAGE
       currentPage = (Page)(currentPage + 1);
     }
     break;
