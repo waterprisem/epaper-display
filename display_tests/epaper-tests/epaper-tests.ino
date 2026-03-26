@@ -16,6 +16,12 @@
 
 String fact;
 
+String todoItems[] = {"Wake up", "Study", "Go sleep"};
+bool todoChecked[] = {false, true, false};
+int todoCount = 3;
+
+int selectedTodoItem = 0;
+
 
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
@@ -151,6 +157,21 @@ void drawTODO(){
     display.fillScreen(GxEPD_WHITE);
     display.setCursor(150, 150);
     display.print("TODO PAGE");
+
+    for(int i = 0; i < todoCount; i++) {
+      if (todoChecked[i] == true){
+        display.fillRect(200, 300 + i*50, 25, 25, GxEPD_BLACK);
+      }
+      else{
+        display.drawRect(200, 300+ i*50, 25, 25, GxEPD_BLACK);
+      }
+      display.setCursor(240, 330+ i*50);
+      display.print(todoItems[i]);
+
+      if (selectedTodoItem == i){
+        display.drawCircle(180, 310+ i*50, 10, GxEPD_BLACK);
+      }
+    }
   } while (display.nextPage());
 
 }
@@ -229,6 +250,10 @@ void translateIR() // takes action based on IR code received
     if (currentPage ==RANDOM){
       drawRANDOM();
     }
+    if(currentPage ==TODO){
+      todoChecked[selectedTodoItem] = !todoChecked[selectedTodoItem];
+      drawTODO();
+    }
   
   
     break;
@@ -243,8 +268,28 @@ void translateIR() // takes action based on IR code received
     }
     break;
   case 0x07: Serial.println("equalizer"); break;
-  case 0x15: Serial.println("minus"); break;
-  case 0x09: Serial.println("plus"); break;
+  case 0x15: Serial.println("minus"); 
+    if (currentPage == TODO){
+      if (selectedTodoItem== 0){
+        selectedTodoItem = todoCount-1;
+      }
+      else{
+        selectedTodoItem -=1;
+      }
+      drawTODO();
+    }
+    break;
+  case 0x09: Serial.println("plus"); 
+    if (currentPage == TODO){
+    if (selectedTodoItem== todoCount-1){
+      selectedTodoItem = 0;
+    }
+    else{
+      selectedTodoItem +=1;
+    }
+    drawTODO();
+  }
+  break;
   case 0x16: Serial.println("0"); break;
   case 0x19: Serial.println("arrows idk waht this does"); break;
   case 0xD: Serial.println("U/SD I also don't know what this does"); break;
