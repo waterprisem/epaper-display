@@ -14,6 +14,8 @@
 #define EPD_RST   9
 #define EPD_BUSY  8
 
+bool power = true;
+
 String fact;
 
 String todoItems[] = {"Wake up", "Study", "Go sleep"};
@@ -243,7 +245,21 @@ void translateIR() // takes action based on IR code received
 {
   switch(IrReceiver.decodedIRData.command)
   {
-  case 0x45: Serial.println("power"); break;
+  case 0x45: Serial.println("power"); 
+    power = !power;
+    if (power == 1){
+      drawHOME();
+    }
+    else{
+      display.setFullWindow();
+      display.firstPage();
+      do {
+        display.fillScreen(GxEPD_WHITE);
+      } while (display.nextPage());
+
+    }
+  
+  break;
   case 0x46: Serial.println("mode"); break;
   case 0x47: Serial.println("mute"); break;
   case 0x44: Serial.println("pause"); 
@@ -310,3 +326,4 @@ void translateIR() // takes action based on IR code received
 
   delay(500); // Do not get immediate repeat
 }
+
