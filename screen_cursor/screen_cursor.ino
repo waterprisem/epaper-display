@@ -38,7 +38,6 @@ void setup() {
   do {
     display.fillScreen(GxEPD_WHITE);
     display.setCursor(100, 100);
-    display.print("Hello Worldddd!");
   } while (display.nextPage());
   Serial.println("Done!");
 
@@ -75,6 +74,7 @@ void loop() {
 
 void update_screen_cursor(int x_change, int y_change) { // Added 'int' types
   Serial.printf("Old Cursor X: %d | Old Cursor Y: %d\n", cursorX, cursorY);
+
   cursorX += x_change; 
   cursorY += y_change;
   
