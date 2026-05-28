@@ -1,6 +1,10 @@
 # E-Paper Display Dashboard
 
 A personal dashboard built with an ESP32-S3 and a Waveshare 6" HD e-Paper display. Navigate between pages using an IR remote, displaying the date, a random facts page, and a todo checklist.
+---
+
+## Example Demo
+[![video](https://www.youtube.com/watch?v=xf4vEA67UQo)](https://www.youtube.com/watch?v=xf4vEA67UQo)
 
 ---
 
