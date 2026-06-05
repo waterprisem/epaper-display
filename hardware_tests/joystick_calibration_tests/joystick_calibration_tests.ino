@@ -1,5 +1,14 @@
-// Variables to store the physical limits of YOUR joystick
+/*
+ * Joystick Calibration Test
+ * Created: I forgot
+ *
+ * Test program for:
+ * - Center calibration
+ * - Axis normalization (-100 to 100)
+ * - Deadzone verification
+ */
 
+// Variables to store the physical limits of YOUR joystick
 const int VRX_PIN = 7; // Joystick X-axis
 const int VRY_PIN = 16; // Joystick Y-axis
 const int SW_PIN  = 15; // Joystick Switch
