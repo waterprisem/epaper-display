@@ -57,8 +57,6 @@ A personal dashboard built with an ESP32-S3 and a Waveshare 6" HD e-Paper displa
 
 ## Setup & Installation
 
-> **Note:** use the epaper-tests file and folder, ignore the other test files :)
-
 ### 1. Prerequisites
 
 Install the following libraries via Arduino IDE Library Manager:
